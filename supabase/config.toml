@@ -1,0 +1,16 @@
+project_id = "kmakycjxgxjljwjfsair"
+
+[functions.redeem]
+verify_jwt = true
+
+[functions.webhook-inbound]
+verify_jwt = false
+
+[functions.partner-api]
+verify_jwt = false
+
+[functions.points-engine]
+verify_jwt = false
+
+[functions.webhook-dispatch]
+verify_jwt = false
