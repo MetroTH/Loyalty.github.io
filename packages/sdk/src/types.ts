@@ -40,6 +40,9 @@ export interface Member {
   phone: string | null;
   email: string | null;
   full_name: string | null;
+  company: string | null;
+  address: string | null;
+  pdpa_consent: boolean;
   points_balance: number;
   lifetime_points: number;
   tier_id: string | null;
@@ -74,6 +77,7 @@ export interface Redemption {
   code: string;
   status: 'issued' | 'used' | 'expired' | 'cancelled';
   created_at: string;
+  reward?: { title: string; image_url: string | null } | null;
 }
 
 export interface Mission {

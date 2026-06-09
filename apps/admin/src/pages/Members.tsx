@@ -22,11 +22,13 @@ export default function Members() {
       <div className="card">
         <table>
           <thead>
-            <tr><th>Phone</th><th>Email</th><th>Balance</th><th>Lifetime</th><th>Joined</th></tr>
+            <tr><th>Name</th><th>Company</th><th>Phone</th><th>Email</th><th>Balance</th><th>Lifetime</th><th>Joined</th></tr>
           </thead>
           <tbody>
             {members.map((m) => (
               <tr key={m.id}>
+                <td>{m.full_name ?? '—'}</td>
+                <td>{m.company ?? '—'}</td>
                 <td>{m.phone ?? '—'}</td>
                 <td>{m.email ?? '—'}</td>
                 <td>{m.points_balance}</td>
@@ -34,7 +36,7 @@ export default function Members() {
                 <td>{new Date(m.created_at).toLocaleDateString()}</td>
               </tr>
             ))}
-            {members.length === 0 && <tr><td colSpan={5} className="muted">No members yet.</td></tr>}
+            {members.length === 0 && <tr><td colSpan={7} className="muted">No members yet.</td></tr>}
           </tbody>
         </table>
       </div>

@@ -1,5 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { Tenant, Member, Reward, Tier, NewsItem, Mission, LedgerEntry } from './types';
+import type {
+  Tenant,
+  Member,
+  Reward,
+  Tier,
+  NewsItem,
+  Mission,
+  LedgerEntry,
+  Redemption,
+} from './types';
 
 export * from './types';
 
@@ -80,6 +89,15 @@ export async function fetchMissions(tenantId: string): Promise<Mission[]> {
     .eq('tenant_id', tenantId)
     .eq('active', true);
   return (data as Mission[]) ?? [];
+}
+
+export async function fetchMyRedemptions(memberId: string): Promise<Redemption[]> {
+  const { data } = await getSupabase()
+    .from('redemptions')
+    .select('id, reward_id, cost_points, code, status, created_at, reward:rewards(title, image_url)')
+    .eq('member_id', memberId)
+    .order('created_at', { ascending: false });
+  return (data as unknown as Redemption[]) ?? [];
 }
 
 export async function fetchLedger(memberId: string): Promise<LedgerEntry[]> {

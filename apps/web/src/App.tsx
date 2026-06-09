@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './lib/auth';
 import { Layout } from './components/Layout';
 import Login from './pages/Login';
+import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Rewards from './pages/Rewards';
 import Missions from './pages/Missions';
@@ -9,10 +10,12 @@ import News from './pages/News';
 import Profile from './pages/Profile';
 
 export default function App() {
-  const { session, loading } = useAuth();
+  const { session, member, loading } = useAuth();
 
   if (loading) return <div className="center muted">Loading…</div>;
   if (!session) return <Login />;
+  // New members must complete their profile + PDPA consent first.
+  if (member && !member.pdpa_consent) return <Onboarding />;
 
   return (
     <Layout>

@@ -63,6 +63,19 @@ export default function Rewards() {
         const affordable = (member?.points_balance ?? 0) >= r.cost_points;
         return (
           <div className="card" key={r.id}>
+            {r.image_url && (
+              <img
+                src={r.image_url}
+                alt={r.title}
+                style={{
+                  width: '100%',
+                  height: 140,
+                  objectFit: 'cover',
+                  borderRadius: 'var(--radius)',
+                  marginBottom: 12,
+                }}
+              />
+            )}
             <div className="row">
               <div className="stack">
                 <strong>{r.title}</strong>
