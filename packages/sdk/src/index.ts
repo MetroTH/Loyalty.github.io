@@ -33,6 +33,21 @@ export function tenantSlug(): string {
   return (import.meta.env.VITE_TENANT_SLUG as string) || 'default';
 }
 
+/** Map a Postgres/Supabase error to a friendly, user-facing message. */
+export function friendlyError(
+  error: { code?: string; message?: string } | null | undefined,
+): string {
+  if (!error) return '';
+  switch (error.code) {
+    case '23505':
+      return 'That phone number is already registered to another member.';
+    case '23503':
+      return 'This item is in use and cannot be deleted.';
+    default:
+      return error.message ?? 'Something went wrong. Please try again.';
+  }
+}
+
 // ── Data access helpers ───────────────────────────────────────
 
 export async function fetchTenant(slug = tenantSlug()): Promise<Tenant | null> {
@@ -94,7 +109,7 @@ export async function fetchMissions(tenantId: string): Promise<Mission[]> {
 export async function fetchMyRedemptions(memberId: string): Promise<Redemption[]> {
   const { data } = await getSupabase()
     .from('redemptions')
-    .select('id, reward_id, cost_points, code, status, created_at, reward:rewards(title, image_url)')
+    .select('id, reward_id, cost_points, code, status, created_at, reward_title, reward:rewards(title, image_url)')
     .eq('member_id', memberId)
     .order('created_at', { ascending: false });
   return (data as unknown as Redemption[]) ?? [];

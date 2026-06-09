@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BrandMark } from '@loyalink/theme';
-import { getSupabase } from '@loyalink/sdk';
+import { getSupabase, friendlyError } from '@loyalink/sdk';
 import { useAuth } from '../lib/auth';
 
 // Shown once after first sign-in to collect member profile + PDPA consent.
@@ -36,7 +36,7 @@ export default function Onboarding() {
       .eq('id', member.id);
     setBusy(false);
     if (error) {
-      setError(error.message);
+      setError(friendlyError(error));
       return;
     }
     await refreshMember();

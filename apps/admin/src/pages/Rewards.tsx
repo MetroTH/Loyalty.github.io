@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getSupabase, type Reward } from '@loyalink/sdk';
+import { getSupabase, friendlyError, type Reward } from '@loyalink/sdk';
 import { useAdmin } from '../lib/admin';
 
 interface FormState {
@@ -68,8 +68,12 @@ export default function Rewards() {
     if (!confirm(`Delete reward "${r.title}"?`)) return;
     const { error } = await getSupabase().from('rewards').delete().eq('id', r.id);
     if (error) {
-      // Likely referenced by existing redemptions (FK). Suggest hiding instead.
-      setError(`Cannot delete "${r.title}" — it has been redeemed before. Use "Hide" instead.`);
+      // FK violation = referenced by existing redemptions; suggest hiding instead.
+      setError(
+        error.code === '23503'
+          ? `Cannot delete "${r.title}" — it has been redeemed before. Use "Hide" instead.`
+          : friendlyError(error),
+      );
       return;
     }
     setError('');

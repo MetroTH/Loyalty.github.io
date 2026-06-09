@@ -77,6 +77,7 @@ export interface Redemption {
   code: string;
   status: 'issued' | 'used' | 'expired' | 'cancelled';
   created_at: string;
+  reward_title: string | null;
   reward?: { title: string; image_url: string | null } | null;
 }
 

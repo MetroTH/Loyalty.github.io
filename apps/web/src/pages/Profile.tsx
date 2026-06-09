@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getSupabase, fetchMyRedemptions, type Redemption } from '@loyalink/sdk';
+import { getSupabase, fetchMyRedemptions, friendlyError, type Redemption } from '@loyalink/sdk';
 import { useAuth } from '../lib/auth';
 
 const statusColor: Record<string, string> = {
@@ -16,6 +16,7 @@ export default function Profile() {
   const [company, setCompany] = useState(member?.company ?? '');
   const [address, setAddress] = useState(member?.address ?? '');
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
 
   useEffect(() => {
@@ -25,7 +26,8 @@ export default function Profile() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!member) return;
-    await getSupabase()
+    setError('');
+    const { error } = await getSupabase()
       .from('members')
       .update({
         full_name: name,
@@ -34,6 +36,10 @@ export default function Profile() {
         address: address || null,
       })
       .eq('id', member.id);
+    if (error) {
+      setError(friendlyError(error));
+      return;
+    }
     await refreshMember();
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -63,6 +69,7 @@ export default function Profile() {
           <label className="label">Address</label>
           <textarea className="input" rows={2} value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
+        {error && <p className="error">{error}</p>}
         <button className="btn" style={{ marginTop: 8 }}>{saved ? 'Saved ✓' : 'Save'}</button>
       </form>
 
@@ -78,7 +85,7 @@ export default function Profile() {
       {redemptions.map((r) => (
         <div className="card row" key={r.id}>
           <div className="stack">
-            <strong>{r.reward?.title ?? 'Reward'}</strong>
+            <strong>{r.reward_title ?? r.reward?.title ?? 'Reward'}</strong>
             <span className="code" style={{ fontSize: 14, letterSpacing: 2 }}>{r.code}</span>
             <span className="muted" style={{ fontSize: 12 }}>
               {new Date(r.created_at).toLocaleString()}
