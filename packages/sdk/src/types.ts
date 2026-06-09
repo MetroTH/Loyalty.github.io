@@ -87,6 +87,20 @@ export interface Mission {
   description: string | null;
   reward_points: number;
   active: boolean;
+  type: 'basic' | 'checkin' | 'stamp' | string;
+  goal: Record<string, unknown>;
+  image_url: string | null;
+}
+
+export interface MissionProgress {
+  id: string;
+  mission_id: string;
+  member_id: string;
+  count: number;
+  streak: number;
+  last_event_date: string | null;
+  status: 'in_progress' | 'completed' | 'claimed';
+  completed_at: string | null;
 }
 
 export interface NewsItem {

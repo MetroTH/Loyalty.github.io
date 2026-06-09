@@ -6,6 +6,7 @@ import type {
   Tier,
   NewsItem,
   Mission,
+  MissionProgress,
   LedgerEntry,
   Redemption,
 } from './types';
@@ -168,10 +169,26 @@ export async function fetchNews(tenantId: string): Promise<NewsItem[]> {
 export async function fetchMissions(tenantId: string): Promise<Mission[]> {
   const { data } = await getSupabase()
     .from('missions')
-    .select('id, title, description, reward_points, active')
+    .select('id, title, description, reward_points, active, type, goal, image_url')
     .eq('tenant_id', tenantId)
-    .eq('active', true);
+    .eq('active', true)
+    .order('created_at', { ascending: false });
   return (data as Mission[]) ?? [];
+}
+
+export async function fetchMyMissionProgress(memberId: string): Promise<MissionProgress[]> {
+  const { data } = await getSupabase()
+    .from('mission_progress')
+    .select('id, mission_id, member_id, count, streak, last_event_date, status, completed_at')
+    .eq('member_id', memberId);
+  return (data as MissionProgress[]) ?? [];
+}
+
+/** Member daily check-in for a check-in mission. Returns updated progress. */
+export async function checkinMission(missionId: string): Promise<MissionProgress> {
+  const { data, error } = await getSupabase().rpc('mission_checkin', { p_mission: missionId });
+  if (error) throw error;
+  return data as MissionProgress;
 }
 
 export async function fetchMyRedemptions(memberId: string): Promise<Redemption[]> {
