@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getSupabase, friendlyError, type Reward } from '@loyalink/sdk';
 import { useAdmin } from '../lib/admin';
+import { ImageUpload } from '../components/ImageUpload';
 
 interface FormState {
   id: string | null;
@@ -105,10 +106,28 @@ export default function Rewards() {
             <input className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
           <div className="field">
-            <label className="label">Image URL</label>
-            <input className="input" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+            <label className="label">Image</label>
+            {form.image_url && (
+              <img
+                src={form.image_url}
+                alt=""
+                style={{ width: 200, height: 120, objectFit: 'cover', borderRadius: 8, display: 'block', marginBottom: 8 }}
+              />
+            )}
+            <input
+              className="input"
+              placeholder="Paste an image URL, or upload below"
+              value={form.image_url}
+              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+            />
+            <ImageUpload
+              folder="rewards"
+              maxWidth={600}
+              format="jpeg"
+              onUploaded={(url) => setForm((f) => ({ ...f, image_url: url }))}
+            />
             <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>
-              Recommended: landscape image ~600×360 px (JPG/PNG). Shown at 140 px tall in the member app. Keep under ~300 KB.
+              Upload auto-resizes to 600 px wide (landscape works best). Shown at 140 px tall in the member app.
             </p>
           </div>
           {error && <p className="error">{error}</p>}

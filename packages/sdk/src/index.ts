@@ -48,6 +48,69 @@ export function friendlyError(
   }
 }
 
+// ── Image upload (client-side resize + Supabase Storage) ──────
+
+function loadImageEl(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = (e) => {
+      URL.revokeObjectURL(url);
+      reject(e);
+    };
+    img.src = url;
+  });
+}
+
+/** Downscale an image file to maxWidth and re-encode (jpeg/png). */
+async function resizeImageFile(
+  file: File,
+  maxWidth: number,
+  format: 'jpeg' | 'png',
+): Promise<Blob> {
+  const img = await loadImageEl(file);
+  const scale = Math.min(1, maxWidth / (img.width || maxWidth));
+  const w = Math.max(1, Math.round((img.width || maxWidth) * scale));
+  const h = Math.max(1, Math.round((img.height || maxWidth) * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas not supported');
+  ctx.drawImage(img, 0, 0, w, h);
+  const mime = format === 'png' ? 'image/png' : 'image/jpeg';
+  return await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Image encoding failed'))), mime, 0.85),
+  );
+}
+
+/**
+ * Resize an image in the browser, upload to the public `assets` bucket,
+ * and return its public URL.
+ */
+export async function uploadImage(
+  file: File,
+  opts: { folder?: string; maxWidth?: number; format?: 'jpeg' | 'png' } = {},
+): Promise<string> {
+  const folder = opts.folder ?? 'uploads';
+  const maxWidth = opts.maxWidth ?? 600;
+  const format = opts.format ?? 'jpeg';
+  const blob = await resizeImageFile(file, maxWidth, format);
+  const ext = format === 'png' ? 'png' : 'jpg';
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+  const sb = getSupabase();
+  const { error } = await sb.storage.from('assets').upload(path, blob, {
+    contentType: format === 'png' ? 'image/png' : 'image/jpeg',
+    upsert: false,
+  });
+  if (error) throw error;
+  return sb.storage.from('assets').getPublicUrl(path).data.publicUrl;
+}
+
 // ── Data access helpers ───────────────────────────────────────
 
 export async function fetchTenant(slug = tenantSlug()): Promise<Tenant | null> {
