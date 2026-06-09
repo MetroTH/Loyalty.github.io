@@ -7,6 +7,7 @@ import type {
   NewsItem,
   Mission,
   MissionProgress,
+  Team,
   LedgerEntry,
   Redemption,
 } from './types';
@@ -189,6 +190,51 @@ export async function checkinMission(missionId: string): Promise<MissionProgress
   const { data, error } = await getSupabase().rpc('mission_checkin', { p_mission: missionId });
   if (error) throw error;
   return data as MissionProgress;
+}
+
+/** Answer a quiz mission. Returns progress (status 'completed' if correct). */
+export async function answerQuiz(missionId: string, choice: number): Promise<MissionProgress> {
+  const { data, error } = await getSupabase().rpc('mission_answer_quiz', {
+    p_mission: missionId,
+    p_choice: choice,
+  });
+  if (error) throw error;
+  return data as MissionProgress;
+}
+
+/** Spin a spin-wheel mission. Returns the won prize. */
+export async function spinMission(missionId: string): Promise<{ label: string; points: number }> {
+  const { data, error } = await getSupabase().rpc('mission_spin', { p_mission: missionId });
+  if (error) throw error;
+  return data as { label: string; points: number };
+}
+
+export async function fetchMyTeam(missionId: string, memberId: string): Promise<Team | null> {
+  const { data } = await getSupabase()
+    .from('teams')
+    .select('id, mission_id, name, code, count, status, team_members!inner(member_id)')
+    .eq('mission_id', missionId)
+    .eq('team_members.member_id', memberId)
+    .maybeSingle();
+  return (data as unknown as Team) ?? null;
+}
+
+export async function teamCreate(missionId: string, name: string): Promise<Team> {
+  const { data, error } = await getSupabase().rpc('team_create', { p_mission: missionId, p_name: name });
+  if (error) throw error;
+  return data as Team;
+}
+
+export async function teamJoin(missionId: string, code: string): Promise<Team> {
+  const { data, error } = await getSupabase().rpc('team_join', { p_mission: missionId, p_code: code });
+  if (error) throw error;
+  return data as Team;
+}
+
+export async function teamContribute(missionId: string): Promise<Team> {
+  const { data, error } = await getSupabase().rpc('team_contribute', { p_mission: missionId });
+  if (error) throw error;
+  return data as Team;
 }
 
 export async function fetchMyRedemptions(memberId: string): Promise<Redemption[]> {

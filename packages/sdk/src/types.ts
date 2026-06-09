@@ -92,6 +92,15 @@ export interface Mission {
   image_url: string | null;
 }
 
+export interface Team {
+  id: string;
+  mission_id: string;
+  name: string;
+  code: string;
+  count: number;
+  status: 'in_progress' | 'completed';
+}
+
 export interface MissionProgress {
   id: string;
   mission_id: string;

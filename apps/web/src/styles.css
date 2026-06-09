@@ -1,12 +1,12 @@
 :root {
-  --color-primary: #4338ca;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #0f766e;
-  --color-accent: #b45309;
-  --color-background: #0b1020;
-  --color-surface: #11182f;
-  --color-foreground: #e8ecf6;
-  --color-muted: #8b93a7;
+  --color-primary: #f5c518;
+  --color-primary-foreground: #1a1a1a;
+  --color-secondary: #1a1a1a;
+  --color-accent: #b58900;
+  --color-background: #ffffff;
+  --color-surface: #fafaf7;
+  --color-foreground: #1a1a1a;
+  --color-muted: #6b7280;
   --radius: 14px;
   --font: Inter, system-ui, -apple-system, sans-serif;
 }
