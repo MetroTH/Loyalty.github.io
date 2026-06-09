@@ -50,6 +50,10 @@ export default function Branding() {
         <div className="field">
           <label className="label">Logo URL (leave empty to show brand name text)</label>
           <input className="input" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} />
+          <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>
+            Recommended: PNG or SVG with transparent background, ~160×40 px (landscape).
+            Displayed at 32 px height. Keep the file small (under ~200 KB) so it loads fast.
+          </p>
         </div>
         <div className="inline">
           <div className="field" style={{ flex: 1 }}>

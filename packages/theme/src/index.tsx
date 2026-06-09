@@ -77,7 +77,20 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 export function BrandMark({ className }: { className?: string }) {
   const tenant = useTenant();
   if (tenant.logo_url) {
-    return <img src={tenant.logo_url} alt={tenant.brand_name} className={className} />;
+    return (
+      <img
+        src={tenant.logo_url}
+        alt={tenant.brand_name}
+        className={className}
+        style={{
+          height: '32px',
+          maxWidth: '160px',
+          objectFit: 'contain',
+          display: 'inline-block',
+          verticalAlign: 'middle',
+        }}
+      />
+    );
   }
   return (
     <span
