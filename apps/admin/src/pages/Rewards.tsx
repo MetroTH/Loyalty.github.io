@@ -123,6 +123,7 @@ export default function Rewards() {
             <ImageUpload
               folder="rewards"
               maxWidth={600}
+              maxHeight={600}
               format="jpeg"
               onUploaded={(url) => setForm((f) => ({ ...f, image_url: url }))}
             />

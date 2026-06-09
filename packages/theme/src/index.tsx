@@ -83,8 +83,8 @@ export function BrandMark({ className }: { className?: string }) {
         alt={tenant.brand_name}
         className={className}
         style={{
-          height: '32px',
-          maxWidth: '160px',
+          maxHeight: '40px',
+          maxWidth: '180px',
           objectFit: 'contain',
           display: 'inline-block',
           verticalAlign: 'middle',

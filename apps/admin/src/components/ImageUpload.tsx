@@ -4,13 +4,14 @@ import { uploadImage } from '@loyalink/sdk';
 interface Props {
   folder: string;
   maxWidth: number;
+  maxHeight?: number;
   format?: 'jpeg' | 'png';
   onUploaded: (url: string) => void;
 }
 
 // Upload button that resizes the image client-side then stores it in Supabase
 // Storage and returns a public URL.
-export function ImageUpload({ folder, maxWidth, format = 'jpeg', onUploaded }: Props) {
+export function ImageUpload({ folder, maxWidth, maxHeight, format = 'jpeg', onUploaded }: Props) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
@@ -20,7 +21,7 @@ export function ImageUpload({ folder, maxWidth, format = 'jpeg', onUploaded }: P
     setBusy(true);
     setErr('');
     try {
-      const url = await uploadImage(file, { folder, maxWidth, format });
+      const url = await uploadImage(file, { folder, maxWidth, maxHeight, format });
       onUploaded(url);
     } catch (e) {
       setErr((e as Error).message || 'Upload failed');
@@ -37,7 +38,7 @@ export function ImageUpload({ folder, maxWidth, format = 'jpeg', onUploaded }: P
         <input type="file" accept="image/*" onChange={onChange} disabled={busy} style={{ display: 'none' }} />
       </label>
       <span className="muted" style={{ fontSize: 12, marginLeft: 10 }}>
-        auto-resized to {maxWidth}px wide
+        auto-resized (square or rectangle)
       </span>
       {err && <p className="error">{err}</p>}
     </div>

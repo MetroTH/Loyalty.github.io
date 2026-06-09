@@ -54,7 +54,7 @@ export default function Branding() {
             <img
               src={logoUrl}
               alt="logo preview"
-              style={{ height: 40, maxWidth: 200, objectFit: 'contain', display: 'block', marginBottom: 8 }}
+              style={{ maxHeight: 40, maxWidth: 180, objectFit: 'contain', display: 'block', marginBottom: 8 }}
             />
           )}
           <input
@@ -63,9 +63,10 @@ export default function Branding() {
             value={logoUrl}
             onChange={(e) => setLogoUrl(e.target.value)}
           />
-          <ImageUpload folder="logos" maxWidth={320} format="png" onUploaded={setLogoUrl} />
+          <ImageUpload folder="logos" maxWidth={400} maxHeight={400} format="png" onUploaded={setLogoUrl} />
           <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>
-            Upload auto-resizes to 320 px wide (PNG, keeps transparency). Displayed at 32 px height.
+            Square or rectangular logos both work — auto-resized (PNG, keeps transparency) and
+            displayed up to 40 px tall / 180 px wide.
           </p>
         </div>
         <div className="inline">

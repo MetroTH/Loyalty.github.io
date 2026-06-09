@@ -66,16 +66,20 @@ function loadImageEl(file: File): Promise<HTMLImageElement> {
   });
 }
 
-/** Downscale an image file to maxWidth and re-encode (jpeg/png). */
+/** Downscale an image file to fit within (maxWidth × maxHeight) and re-encode. */
 async function resizeImageFile(
   file: File,
   maxWidth: number,
+  maxHeight: number,
   format: 'jpeg' | 'png',
 ): Promise<Blob> {
   const img = await loadImageEl(file);
-  const scale = Math.min(1, maxWidth / (img.width || maxWidth));
-  const w = Math.max(1, Math.round((img.width || maxWidth) * scale));
-  const h = Math.max(1, Math.round((img.height || maxWidth) * scale));
+  const iw = img.width || maxWidth;
+  const ih = img.height || maxHeight;
+  // Fit inside the box, preserving aspect ratio (works for square or rectangle).
+  const scale = Math.min(1, maxWidth / iw, maxHeight / ih);
+  const w = Math.max(1, Math.round(iw * scale));
+  const h = Math.max(1, Math.round(ih * scale));
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -90,16 +94,17 @@ async function resizeImageFile(
 
 /**
  * Resize an image in the browser, upload to the public `assets` bucket,
- * and return its public URL.
+ * and return its public URL. Supports square or rectangular sources.
  */
 export async function uploadImage(
   file: File,
-  opts: { folder?: string; maxWidth?: number; format?: 'jpeg' | 'png' } = {},
+  opts: { folder?: string; maxWidth?: number; maxHeight?: number; format?: 'jpeg' | 'png' } = {},
 ): Promise<string> {
   const folder = opts.folder ?? 'uploads';
   const maxWidth = opts.maxWidth ?? 600;
+  const maxHeight = opts.maxHeight ?? maxWidth;
   const format = opts.format ?? 'jpeg';
-  const blob = await resizeImageFile(file, maxWidth, format);
+  const blob = await resizeImageFile(file, maxWidth, maxHeight, format);
   const ext = format === 'png' ? 'png' : 'jpg';
   const path = `${folder}/${crypto.randomUUID()}.${ext}`;
   const sb = getSupabase();
