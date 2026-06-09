@@ -47,23 +47,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function loadMember(s: Session | null) {
-    if (!s?.user) {
+    try {
+      if (!s?.user) {
+        setMember(null);
+        return;
+      }
+      const m = await ensureMember(s.user.id, s.user.email ?? null);
+      setMember(m);
+    } catch (e) {
+      console.error('loadMember failed', e);
       setMember(null);
-      return;
     }
-    const m = await ensureMember(s.user.id, s.user.email ?? null);
-    setMember(m);
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
+    supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      await loadMember(data.session);
-      setLoading(false);
+      loadMember(data.session).finally(() => setLoading(false));
     });
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_e, s) => {
+    // NOTE: never call awaitable supabase methods directly inside this callback
+    // (it holds the auth lock and would deadlock). Defer with setTimeout.
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
-      await loadMember(s);
+      setTimeout(() => loadMember(s), 0);
     });
     return () => sub.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps

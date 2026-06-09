@@ -29,30 +29,36 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function check(s: Session | null) {
-    const t = await fetchTenant();
-    setTenant(t);
-    if (s?.user && t) {
-      const { data } = await supabase
-        .from('admins')
-        .select('role')
-        .eq('user_id', s.user.id)
-        .eq('tenant_id', t.id)
-        .maybeSingle();
-      setIsAdmin(!!data);
-    } else {
+    try {
+      const t = await fetchTenant();
+      setTenant(t);
+      if (s?.user && t) {
+        const { data } = await supabase
+          .from('admins')
+          .select('role')
+          .eq('user_id', s.user.id)
+          .eq('tenant_id', t.id)
+          .maybeSingle();
+        setIsAdmin(!!data);
+      } else {
+        setIsAdmin(false);
+      }
+    } catch (e) {
+      console.error('admin check failed', e);
       setIsAdmin(false);
     }
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
+    supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      await check(data.session);
-      setLoading(false);
+      check(data.session).finally(() => setLoading(false));
     });
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_e, s) => {
+    // NOTE: never call awaitable supabase methods directly inside this callback
+    // (it holds the auth lock and would deadlock). Defer with setTimeout.
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
-      await check(s);
+      setTimeout(() => check(s), 0);
     });
     return () => sub.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
