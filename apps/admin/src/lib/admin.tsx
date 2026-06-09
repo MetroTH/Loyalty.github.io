@@ -64,7 +64,13 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     isAdmin,
     loading,
     sendOtp: async (email) => {
-      const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: window.location.origin + import.meta.env.BASE_URL,
+        },
+      });
       if (error) throw error;
     },
     verifyOtp: async (email, token) => {
